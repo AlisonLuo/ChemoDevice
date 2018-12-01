@@ -70,7 +70,8 @@ void setup()
   //lcd.backlight(OFF); // Turn off the backlight  
   Serial.begin(9600);
 }
- 
+
+char prescribed_amount[20] = "100";
 void init_MENU(byte page_number)
 {
   if (page_number == 0) {
@@ -84,11 +85,14 @@ void init_MENU(byte page_number)
   }
   else if (page_number == 1) {
     lcd.LCD_clear();
-    lcd.LCD_write_string(MENU_X, 0, "Prescribed amount: ", MENU_HIGHLIGHT);
+    lcd.LCD_write_string(10, 0, "Prescribed", MENU_NORMAL);
+    lcd.LCD_write_string(20, 1, "Amount", MENU_NORMAL);
+    lcd.LCD_write_string_big(20, 3, prescribed_amount, MENU_NORMAL);
+    lcd.LCD_write_string(70, 5, "g", MENU_NORMAL);
   }
   else if (page_number == 2) {
     lcd.LCD_clear();
-    lcd.LCD_write_string(MENU_X, 0, "Checked!: ", MENU_HIGHLIGHT);
+    lcd.LCD_write_string(MENU_X, 0, "Checked!", MENU_HIGHLIGHT);
   }
   
 }
@@ -113,7 +117,6 @@ void loop()
               page = page - 1;
             }
             init_MENU(page);
-            Serial.println(page);
           }
           break;
         case RIGHT_KEY:
@@ -128,7 +131,6 @@ void loop()
               page = page + 1;
             }
             init_MENU(page);
-            Serial.println(page);
           }
           break;
       }
