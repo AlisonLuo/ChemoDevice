@@ -5,7 +5,7 @@
 
 char readyMsg[11]="ScaleReady";
 char redLedOnMsg[11]="RED LED ON";
-char rspeakerOnMsg[11]="Speaker ON";
+char speakerOnMsg[11]="Speaker ON";
 int msgSize = 5;
 float mass;
 
@@ -16,19 +16,20 @@ void setup() {
 
 
 void loop() {
+// TO send out messages
+//  // Send ready status
+  sendMessage(readyMsg);
+  delay(2000);
+  
 // TO request and receive message, e.g. mass
   float receive = requestInfo(5).toFloat();
   Serial.println(receive+1);
-  delay(500);
+  delay(4000);
 
-// TO send out messages
-////  // Send ready status
-//  sendMessage(readyMsg);
-//  delay(100);
-//
-//  // Send speaker ON
-//  sendMessage(redLedOnMsg);
-//  delay(100);
+
+  // Send speaker ON
+  sendMessage(speakerOnMsg);
+  delay(2000);
 //
 //  // Send RED LED ON
 //  sendMessage(speakerOnMsg);
