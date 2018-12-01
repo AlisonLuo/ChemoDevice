@@ -30,7 +30,7 @@ byte button_status[NUM_KEYS];
 byte button_flag[NUM_KEYS];
 
 //turn on the display at first
-bool display_turn_off = false;
+byte page = 0;
  
 void setup()
 {
@@ -64,28 +64,33 @@ void setup()
   lcd.LCD_clear();
 
   //menu initialization
-  init_MENU();
-  display_turn_off = false;  
+  init_MENU(page);
 
   lcd.backlight(ON);//Turn on the backlight
   //lcd.backlight(OFF); // Turn off the backlight  
+  Serial.begin(9600);
 }
  
-void init_MENU(void)
+void init_MENU(byte page_number)
 {
-  lcd.LCD_clear();
-  lcd.LCD_write_string(MENU_X, 0, "Patient Name: ", MENU_HIGHLIGHT);
-  lcd.LCD_write_string(MENU_X, 1, "Jenny Yu", MENU_NORMAL);
-  lcd.LCD_write_string(MENU_X, 2, "Drug Name: ", MENU_HIGHLIGHT);
-  lcd.LCD_write_string(MENU_X, 3, "methotrexate", MENU_NORMAL);
-  lcd.LCD_write_string(MENU_X, 4, "Dosage:", MENU_HIGHLIGHT);
-  lcd.LCD_write_string(MENU_X, 5, "500 mg", MENU_NORMAL);
-}
-
-void init_MENU_TWO(void)
-{
-  lcd.LCD_clear();
-  lcd.LCD_write_string(MENU_X, 0, "Prescribed amount: ", MENU_HIGHLIGHT);
+  if (page_number == 0) {
+    lcd.LCD_clear();
+    lcd.LCD_write_string(MENU_X, 0, "Patient Name: ", MENU_HIGHLIGHT);
+    lcd.LCD_write_string(MENU_X, 1, "Jenny Yu", MENU_NORMAL);
+    lcd.LCD_write_string(MENU_X, 2, "Drug Name: ", MENU_HIGHLIGHT);
+    lcd.LCD_write_string(MENU_X, 3, "methotrexate", MENU_NORMAL);
+    lcd.LCD_write_string(MENU_X, 4, "Dosage:", MENU_HIGHLIGHT);
+    lcd.LCD_write_string(MENU_X, 5, "500 mg", MENU_NORMAL);
+  }
+  else if (page_number == 1) {
+    lcd.LCD_clear();
+    lcd.LCD_write_string(MENU_X, 0, "Prescribed amount: ", MENU_HIGHLIGHT);
+  }
+  else if (page_number == 2) {
+    lcd.LCD_clear();
+    lcd.LCD_write_string(MENU_X, 0, "Checked!: ", MENU_HIGHLIGHT);
+  }
+  
 }
  
 void loop()
@@ -96,15 +101,34 @@ void loop()
 
       button_flag[i]=0;  // reset button flag
       switch(i){
-        case CENTER_KEY:
+        case LEFT_KEY:
           lcd.LCD_clear();
-          if(display_turn_off == false){
-            init_MENU_TWO();
-            display_turn_off = true;
+          if(page >= 0 && page < 3){
+            
+            if (page == 0) {
+              init_MENU(page);
+              break;
+            }
+            else {
+              page = page - 1;
+            }
+            init_MENU(page);
+            Serial.println(page);
           }
-          else {
-            init_MENU();
-            display_turn_off = false;
+          break;
+        case RIGHT_KEY:
+          lcd.LCD_clear();
+          if(page >= 0 && page < 3){
+            
+            if (page == 2) {
+              init_MENU(page);
+              break;
+            }
+            else {
+              page = page + 1;
+            }
+            init_MENU(page);
+            Serial.println(page);
           }
           break;
       }
