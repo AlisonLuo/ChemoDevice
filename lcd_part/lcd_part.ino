@@ -7,6 +7,7 @@ int count = 0;
 float currMass = 0;
 float sum = 0;
 char prescribed_amount[20] = "35";
+char checked_result[20];
 
 // define LEDs
 int readyPin = 11;
@@ -52,6 +53,7 @@ byte button_flag[NUM_KEYS];
 
 //turn on the display at first
 byte page = 0;
+byte prev_page = 0;
  
 void setup()
 {
@@ -88,7 +90,7 @@ void setup()
   lcd.LCD_clear();
 
   //menu initialization
-  init_MENU(page);
+  init_MENU(page, prev_page);
 
   lcd.backlight(ON);//Turn on the backlight
   //lcd.backlight(OFF); // Turn off the backlight  
@@ -100,10 +102,13 @@ void setup()
 }
 
 
-void init_MENU(byte page_number)
+void init_MENU(byte page_number, byte prev_page)
 {
-  if (page_number == 0) {
+  if (page_number != prev_page) {
     lcd.LCD_clear();
+  }
+  
+  if (page_number == 0) {
     lcd.LCD_write_string(MENU_X, 0, "Patient Name: ", MENU_HIGHLIGHT);
     lcd.LCD_write_string(MENU_X, 1, "Jenny Yu", MENU_NORMAL);
     lcd.LCD_write_string(MENU_X, 2, "Drug Name: ", MENU_HIGHLIGHT);
@@ -112,15 +117,14 @@ void init_MENU(byte page_number)
     lcd.LCD_write_string(MENU_X, 5, "500 mg", MENU_NORMAL);
   }
   else if (page_number == 1) {
-    lcd.LCD_clear();
     lcd.LCD_write_string(10, 0, "Prescribed", MENU_NORMAL);
     lcd.LCD_write_string(20, 1, "Amount", MENU_NORMAL);
     lcd.LCD_write_string_big(20, 3, prescribed_amount, MENU_NORMAL);
     lcd.LCD_write_string(70, 5, "g", MENU_NORMAL);
   }
   else if (page_number == 2) {
-    lcd.LCD_clear();
-    lcd.LCD_write_string(MENU_X, 0, "Checked!", MENU_HIGHLIGHT);
+//        lcd.LCD_clear();
+    lcd.LCD_write_string(MENU_X, 0, checked_result, MENU_HIGHLIGHT);
   }
   
 }
@@ -134,31 +138,47 @@ void loop()
       button_flag[i]=0;  // reset button flag
       switch(i){
         case LEFT_KEY:
-          lcd.LCD_clear();
           if(page >= 0 && page < 3){
-            
             if (page == 0) {
-              init_MENU(page);
+              prev_page = 0;
+              init_MENU(page,prev_page);
+              Serial.println("prev page");
+              Serial.println(prev_page);
+              Serial.println("current page");
+              Serial.println(page);
               break;
             }
             else {
+              prev_page = page;
               page = page - 1;
             }
-            init_MENU(page);
+            init_MENU(page, prev_page);
+            Serial.println("prev page");
+            Serial.println(prev_page);
+            Serial.println("current page");
+            Serial.println(page);
           }
           break;
         case RIGHT_KEY:
-          lcd.LCD_clear();
           if(page >= 0 && page < 3){
-            
             if (page == 2) {
-              init_MENU(page);
+              prev_page = 2;
+              init_MENU(page, prev_page);
+              Serial.println("prev page");
+              Serial.println(prev_page);
+              Serial.println("current page");
+              Serial.println(page);
               break;
             }
             else {
+              prev_page = page;
               page = page + 1;
             }
-            init_MENU(page);
+            init_MENU(page, prev_page);
+            Serial.println("prev page");
+            Serial.println(prev_page);
+            Serial.println("current page");
+            Serial.println(page);
           }
           break;
       }
@@ -166,7 +186,7 @@ void loop()
   }
 
   scale.set_scale(calibration_factor); //Adjust to this calibration factor
-  Serial.print("Reading: ");
+//  Serial.print("Reading: ");
   currMass = scale.get_units()*1000;
   Serial.print(currMass, 1); // convert kg to mg
   Serial.print(" g");
@@ -178,6 +198,7 @@ void loop()
     waitingLED = LOW;
     digitalWrite(readyPin, readyLED);
     digitalWrite(waitingPin, waitingLED);
+
   }
   else if(currMass > 1)
   {
@@ -191,20 +212,24 @@ void loop()
     if(count==10)
     {
       massAvg = sum/11;
-      Serial.print("Average Mass: ");
-      Serial.println(massAvg);
+//      Serial.print("Average Mass: ");
+//      Serial.println(massAvg);
       double prescribed_double = atof(prescribed_amount);
      // float prescribed_float = atof(prescribed_double);
       if((massAvg < prescribed_double+2) && massAvg > (prescribed_double-2))
       {
         // display ok
-        Serial.println("display ok");
+        strcpy(checked_result, "okay!");
+        init_MENU(2,prev_page);
+//        Serial.println("display ok");
       }
       else
       {
         //display ERROR and massAvg
         // turn on SPEAKER
-        Serial.println("Speaker is on + ERROR");
+        strcpy(checked_result, "error");
+         init_MENU(2,prev_page);
+//        Serial.println("Speaker is on + ERROR");
         
       }
       count = 0;
