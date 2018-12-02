@@ -7,8 +7,11 @@ float massArray [10];
 int count = 0;
 float currMass = 0;
 float sum = 0;
+float syringe = 7.0;
 char prescribed_amount[20] = "35";
 char checked_result[20];
+char final_mass[5] = "";
+
 
 // define LEDs
 int readyPin = 11;
@@ -110,9 +113,9 @@ void init_MENU(byte page_number, byte prev_page)
   
   if (page_number == 0) {
     lcd.LCD_write_string(MENU_X, 0, "Patient Name: ", MENU_HIGHLIGHT);
-    lcd.LCD_write_string(MENU_X, 1, "Jenny Yu", MENU_NORMAL);
+    lcd.LCD_write_string(MENU_X, 1, "OncoMouse", MENU_NORMAL);
     lcd.LCD_write_string(MENU_X, 2, "Drug Name: ", MENU_HIGHLIGHT);
-    lcd.LCD_write_string(MENU_X, 3, "methotrexate", MENU_NORMAL);
+    lcd.LCD_write_string(MENU_X, 3, "troglitazone", MENU_NORMAL);
     lcd.LCD_write_string(MENU_X, 4, "Dosage:", MENU_HIGHLIGHT);
     lcd.LCD_write_string(MENU_X, 5, "500 mg", MENU_NORMAL);
   }
@@ -123,7 +126,11 @@ void init_MENU(byte page_number, byte prev_page)
     lcd.LCD_write_string(70, 5, "g", MENU_NORMAL);
   }
   else if (page_number == 2) {
-    lcd.LCD_write_string(MENU_X, 0, checked_result, MENU_HIGHLIGHT);
+    lcd.LCD_clear();
+    lcd.LCD_write_string(20, 1, checked_result, MENU_HIGHLIGHT);
+    lcd.LCD_write_string(5, 4, "Measured Mass",MENU_NORMAL);
+    lcd.LCD_write_string(20, 5, final_mass, MENU_NORMAL);
+    lcd.LCD_write_string(50, 5, "g", MENU_NORMAL);
   }
   
 }
@@ -171,19 +178,20 @@ void loop()
   scale.set_scale(calibration_factor); //Adjust to this calibration factor
   Serial.print("Reading: ");
   currMass = scale.get_units()*1000;
-  Serial.print(currMass, 1); // convert kg to mg
+  Serial.print(currMass, 0);
   Serial.print(" g");
   Serial.println();
 
-  if(currMass > -1 && currMass < 1)
+  if(currMass > -2 && currMass < 2)
   {
     readyLED = HIGH;
     waitingLED = LOW;
+    dtostrf(0,5,1,final_mass);
     digitalWrite(readyPin, readyLED);
     digitalWrite(waitingPin, waitingLED);
 
   }
-  else if(currMass > 1)
+  else if(currMass > 2)
   {
     waitingLED = HIGH;
     readyLED = LOW;
@@ -195,6 +203,9 @@ void loop()
     if(count==10)
     {
       massAvg = sum/11;
+//      double final_mass_double = atof(massAvg - syringe);
+//      final_mass = dtostrf(massAvg - syringe);
+      dtostrf(massAvg,5,1,final_mass);
       Serial.print("Average Mass: ");
       Serial.println(massAvg);
       double prescribed_double = atof(prescribed_amount);
@@ -219,6 +230,7 @@ void loop()
       }
       count = 0;
       sum = 0;
+      dtostrf(0,5,1,final_mass);
     }
     else {
       count++;
