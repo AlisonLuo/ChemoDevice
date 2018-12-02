@@ -93,7 +93,6 @@ void setup()
   init_MENU(page, prev_page);
 
   lcd.backlight(ON);//Turn on the backlight
-  //lcd.backlight(OFF); // Turn off the backlight  
   Serial.begin(9600);
   Serial.println("Press t for tare:");
   scale.set_scale();
@@ -123,7 +122,6 @@ void init_MENU(byte page_number, byte prev_page)
     lcd.LCD_write_string(70, 5, "g", MENU_NORMAL);
   }
   else if (page_number == 2) {
-//        lcd.LCD_clear();
     lcd.LCD_write_string(MENU_X, 0, checked_result, MENU_HIGHLIGHT);
   }
   
@@ -142,10 +140,6 @@ void loop()
             if (page == 0) {
               prev_page = 0;
               init_MENU(page,prev_page);
-              Serial.println("prev page");
-              Serial.println(prev_page);
-              Serial.println("current page");
-              Serial.println(page);
               break;
             }
             else {
@@ -153,10 +147,6 @@ void loop()
               page = page - 1;
             }
             init_MENU(page, prev_page);
-            Serial.println("prev page");
-            Serial.println(prev_page);
-            Serial.println("current page");
-            Serial.println(page);
           }
           break;
         case RIGHT_KEY:
@@ -164,10 +154,6 @@ void loop()
             if (page == 2) {
               prev_page = 2;
               init_MENU(page, prev_page);
-              Serial.println("prev page");
-              Serial.println(prev_page);
-              Serial.println("current page");
-              Serial.println(page);
               break;
             }
             else {
@@ -175,10 +161,6 @@ void loop()
               page = page + 1;
             }
             init_MENU(page, prev_page);
-            Serial.println("prev page");
-            Serial.println(prev_page);
-            Serial.println("current page");
-            Serial.println(page);
           }
           break;
       }
@@ -186,7 +168,7 @@ void loop()
   }
 
   scale.set_scale(calibration_factor); //Adjust to this calibration factor
-//  Serial.print("Reading: ");
+  Serial.print("Reading: ");
   currMass = scale.get_units()*1000;
   Serial.print(currMass, 1); // convert kg to mg
   Serial.print(" g");
@@ -212,16 +194,15 @@ void loop()
     if(count==10)
     {
       massAvg = sum/11;
-//      Serial.print("Average Mass: ");
-//      Serial.println(massAvg);
+      Serial.print("Average Mass: ");
+      Serial.println(massAvg);
       double prescribed_double = atof(prescribed_amount);
-     // float prescribed_float = atof(prescribed_double);
       if((massAvg < prescribed_double+2) && massAvg > (prescribed_double-2))
       {
         // display ok
         strcpy(checked_result, "okay!");
         init_MENU(2,prev_page);
-//        Serial.println("display ok");
+        Serial.println("display ok");
       }
       else
       {
@@ -229,7 +210,7 @@ void loop()
         // turn on SPEAKER
         strcpy(checked_result, "error");
          init_MENU(2,prev_page);
-//        Serial.println("Speaker is on + ERROR");
+        Serial.println("Speaker is on + ERROR");
         
       }
       count = 0;
@@ -240,7 +221,6 @@ void loop()
     }
   }
   
-  //digitalWrite(waitingPin, waitingLED);
 }
 
 // The followinging are interrupt-driven keypad reading functions
