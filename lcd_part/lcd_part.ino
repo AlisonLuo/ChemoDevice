@@ -22,7 +22,7 @@ boolean waitingLED = LOW;
 
 HX711 scale(DOUT, CLK);
 
-float calibration_factor = -311418;
+float calibration_factor = -311420.5;
 
 #include <font_6x8.h>
 #include <font_big.h>
