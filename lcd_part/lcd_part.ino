@@ -1,3 +1,24 @@
+#include <HX711.h>
+
+#define DOUT 8
+#define CLK 9
+float massArray [10];
+int count = 0;
+float currMass = 0;
+float sum = 0;
+char prescribed_amount[20] = "35";
+
+// define LEDs
+int readyPin = 11;
+int waitingPin = 12;
+
+boolean readyLED = LOW;
+boolean waitingLED = LOW;
+
+HX711 scale(DOUT, CLK);
+
+float calibration_factor = -311418;
+
 #include <font_6x8.h>
 #include <font_big.h>
 #include <LCD4884.h>
@@ -34,6 +55,9 @@ byte page = 0;
  
 void setup()
 {
+  //LEDs
+  pinMode(readyPin, OUTPUT);
+  pinMode(waitingPin, OUTPUT);
   // setup interrupt-driven keypad arrays  
   // reset button arrays
   for(byte i=0; i<NUM_KEYS; i++){
@@ -69,9 +93,13 @@ void setup()
   lcd.backlight(ON);//Turn on the backlight
   //lcd.backlight(OFF); // Turn off the backlight  
   Serial.begin(9600);
+  Serial.println("Press t for tare:");
+  scale.set_scale();
+  scale.tare();
+  
 }
 
-char prescribed_amount[20] = "100";
+
 void init_MENU(byte page_number)
 {
   if (page_number == 0) {
@@ -136,6 +164,58 @@ void loop()
       }
     }
   }
+
+  scale.set_scale(calibration_factor); //Adjust to this calibration factor
+  Serial.print("Reading: ");
+  currMass = scale.get_units()*1000;
+  Serial.print(currMass, 1); // convert kg to mg
+  Serial.print(" g");
+  Serial.println();
+
+  if(currMass > -1 && currMass < 1)
+  {
+    readyLED = HIGH;
+    waitingLED = LOW;
+    digitalWrite(readyPin, readyLED);
+    digitalWrite(waitingPin, waitingLED);
+  }
+  else if(currMass > 1)
+  {
+    waitingLED = HIGH;
+    readyLED = LOW;
+    digitalWrite(readyPin, readyLED);
+    digitalWrite(waitingPin, waitingLED);
+    sum = sum + currMass;
+    float massAvg = 0;
+    
+    if(count==10)
+    {
+      massAvg = sum/11;
+      Serial.print("Average Mass: ");
+      Serial.println(massAvg);
+      double prescribed_double = atof(prescribed_amount);
+     // float prescribed_float = atof(prescribed_double);
+      if((massAvg < prescribed_double+2) && massAvg > (prescribed_double-2))
+      {
+        // display ok
+        Serial.println("display ok");
+      }
+      else
+      {
+        //display ERROR and massAvg
+        // turn on SPEAKER
+        Serial.println("Speaker is on + ERROR");
+        
+      }
+      count = 0;
+      sum = 0;
+    }
+    else {
+      count++;
+    }
+  }
+  
+  //digitalWrite(waitingPin, waitingLED);
 }
 
 // The followinging are interrupt-driven keypad reading functions

@@ -17,8 +17,8 @@
  
   //You must have this library in your arduino library folder
  
-#define DOUT  3
-#define CLK  2
+#define DOUT  8
+#define CLK  9
  
 HX711 scale(DOUT, CLK);
  
