@@ -1,4 +1,5 @@
 #include <HX711.h>
+#include "pitches.h"
 
 #define DOUT 8
 #define CLK 9
@@ -211,6 +212,9 @@ void loop()
         strcpy(checked_result, "error");
          init_MENU(2,prev_page);
         Serial.println("Speaker is on + ERROR");
+        for (int thisNote = 0; thisNote < 100; thisNote++) {
+              tone(10,  NOTE_C4, 500);
+          }
         
       }
       count = 0;
