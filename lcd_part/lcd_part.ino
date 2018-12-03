@@ -5,6 +5,7 @@
 #define CLK 9
 float massArray [10];
 int count = 0;
+int counter2 = 0;
 float currMass = 0;
 float sum = 0;
 float syringe = 7.0;
@@ -198,10 +199,11 @@ void loop()
     digitalWrite(readyPin, readyLED);
     digitalWrite(waitingPin, waitingLED);
     sum = sum + currMass;
-    float massAvg = -syringe; // ?
+    float massAvg = -syringe;
     
     if(count==10)
     {
+      counter2++;
       massAvg += sum/11;
 //      double final_mass_double = atof(massAvg - syringe);
 //      final_mass = dtostrf(massAvg - syringe);
@@ -217,8 +219,11 @@ void loop()
         Serial.println("display ok");
       }
       else
+      // (counter2>1 && (massAvg > prescribed_double+0.5) || massAvg < (prescribed_double-0.5))
       {
-        //display ERROR and massAvg
+        if(counter2 >2)
+        {
+          //display ERROR and massAvg
         // turn on SPEAKER
         strcpy(checked_result, "error");
          init_MENU(2,prev_page);
@@ -226,6 +231,9 @@ void loop()
         for (int thisNote = 0; thisNote < 100; thisNote++) {
               tone(10,  NOTE_C6, 500);
           }
+          counter2 = 0;
+        }
+        
       }
       count = 0;
       sum = 0;
