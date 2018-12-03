@@ -8,7 +8,7 @@ int count = 0;
 float currMass = 0;
 float sum = 0;
 float syringe = 7.0;
-char prescribed_amount[20] = "35";
+char prescribed_amount[20] = "7";
 char checked_result[20];
 char final_mass[5] = "";
 
@@ -115,7 +115,7 @@ void init_MENU(byte page_number, byte prev_page)
     lcd.LCD_write_string(MENU_X, 0, "Patient Name: ", MENU_HIGHLIGHT);
     lcd.LCD_write_string(MENU_X, 1, "OncoMouse", MENU_NORMAL);
     lcd.LCD_write_string(MENU_X, 2, "Drug Name: ", MENU_HIGHLIGHT);
-    lcd.LCD_write_string(MENU_X, 3, "troglitazone", MENU_NORMAL);
+    lcd.LCD_write_string(MENU_X, 3, "Cisplatin", MENU_NORMAL);
     lcd.LCD_write_string(MENU_X, 4, "Dosage:", MENU_HIGHLIGHT);
     lcd.LCD_write_string(MENU_X, 5, "500 mg", MENU_NORMAL);
   }
@@ -182,7 +182,7 @@ void loop()
   Serial.print(" g");
   Serial.println();
 
-  if(currMass > -2 && currMass < 2)
+  if(currMass > -1 && currMass < 1)
   {
     readyLED = HIGH;
     waitingLED = LOW;
@@ -191,25 +191,25 @@ void loop()
     digitalWrite(waitingPin, waitingLED);
 
   }
-  else if(currMass > 2)
-  {
+  else if(currMass > 1)
+  { 
     waitingLED = HIGH;
     readyLED = LOW;
     digitalWrite(readyPin, readyLED);
     digitalWrite(waitingPin, waitingLED);
     sum = sum + currMass;
-    float massAvg = 0;
+    float massAvg = -syringe; // ?
     
     if(count==10)
     {
-      massAvg = sum/11;
+      massAvg += sum/11;
 //      double final_mass_double = atof(massAvg - syringe);
 //      final_mass = dtostrf(massAvg - syringe);
       dtostrf(massAvg,5,1,final_mass);
       Serial.print("Average Mass: ");
       Serial.println(massAvg);
       double prescribed_double = atof(prescribed_amount);
-      if((massAvg < prescribed_double+2) && massAvg > (prescribed_double-2))
+      if((massAvg < prescribed_double+0.5) && massAvg > (prescribed_double-0.5))
       {
         // display ok
         strcpy(checked_result, "okay!");
@@ -222,11 +222,10 @@ void loop()
         // turn on SPEAKER
         strcpy(checked_result, "error");
          init_MENU(2,prev_page);
-        Serial.println("Speaker is on + ERROR");
+        Serial.println("ERROR and speaker on");
         for (int thisNote = 0; thisNote < 100; thisNote++) {
-              tone(10,  NOTE_C4, 500);
+              tone(10,  NOTE_C6, 500);
           }
-        
       }
       count = 0;
       sum = 0;
@@ -247,12 +246,10 @@ void loop()
 char get_key(unsigned int input)
 {
   char k;
-
   for (k = 0; k < NUM_KEYS; k++)
   {
     if (input < adc_key_val[k])
     {
-
       return k;
     }
   }
